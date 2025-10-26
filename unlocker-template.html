@@ -3,20 +3,26 @@
 <head><meta charset="UTF-8"><title>Unlock File</title></head>
 <body>
   <h2>🔓 Unlock Protected File</h2>
-  <p>This file expires on: <strong>__EXPIRATION__</strong></p>
+  <p id="expirationNotice">This file expires on: <strong>__EXPIRATION__</strong></p>
   <input type="password" id="pw" placeholder="Enter password" />
   <button onclick="unlock()">Unlock & Download</button>
   <p id="msg"></p>
+
   <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
   <script>
     const encrypted = "__ENCRYPTED__";
     const filename = "__FILENAME__";
     const mime = "__MIME__";
-    const expiration = new Date("__EXPIRATION__");
+    const expirationRaw = "__EXPIRATION__";
+    const expiration = expirationRaw !== "none" ? new Date(expirationRaw) : null;
+
+    if (!expiration) {
+      document.getElementById('expirationNotice').style.display = 'none';
+    }
 
     function unlock() {
       const now = new Date();
-      if (now > expiration) {
+      if (expiration && now > expiration) {
         document.getElementById('msg').innerText = "⏰ This file has expired.";
         return;
       }
