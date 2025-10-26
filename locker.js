@@ -3,8 +3,8 @@ function lockFile() {
   const password = document.getElementById('passwordInput').value || generatePassword();
   const expiration = document.getElementById('expirationInput').value;
 
-  if (!file || !expiration) {
-    alert("Please select a file and set expiration.");
+  if (!file) {
+    alert("Please select a file to lock.");
     return;
   }
 
@@ -20,7 +20,7 @@ function lockFile() {
           .replace('__ENCRYPTED__', encrypted)
           .replace('__FILENAME__', file.name)
           .replace('__MIME__', file.type)
-          .replace('__EXPIRATION__', expiration);
+          .replace('__EXPIRATION__', expiration || 'none');
 
         const blob = new Blob([filled], { type: "text/html" });
         const link = document.createElement("a");
@@ -35,5 +35,7 @@ function lockFile() {
 }
 
 function generatePassword() {
-  return Math.random().toString(36).slice(-10);
+  const pw = Math.random().toString(36).slice(-10);
+  document.getElementById('passwordInput').value = pw;
+  return pw;
 }
