@@ -1,35 +1,213 @@
 <!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"><title>Unlock File</title></head>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Unlock File</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0b0b0b;
+      color: #f0f0f0;
+      padding: 40px 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h2, h3 {
+      color: #800000;
+      margin-bottom: 20px;
+    }
+
+    input[type="password"],
+    input[type="text"],
+    input[type="datetime-local"] {
+      display: block;
+      width: 100%;
+      margin-bottom: 1em;
+      padding: 0.6em;
+      font-size: 1em;
+      border: 1px solid #800000;
+      border-radius: 6px;
+      background-color: #1a1a1a;
+      color: #f0f0f0;
+    }
+
+    button {
+      background-color: #800000;
+      color: white;
+      border: none;
+      padding: 0.8em 1.2em;
+      font-size: 1em;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 1em;
+    }
+
+    button:hover {
+      background-color: #a00000;
+    }
+
+    #msg {
+      margin-top: 1em;
+      font-size: 0.95em;
+      color: #ccc;
+    }
+
+    #adminMenu {
+      border-top: 1px solid #800000;
+      padding-top: 1em;
+      margin-top: 2em;
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 1em;
+      display: block;
+    }
+  </style>
+</head>
 <body>
-  <h2>🔓 Unlock Protected File</h2>
-  <p id="expirationNotice">This file expires on: <strong>__EXPIRATION__</strong></p>
+  <h2>Unlock Protected File</h2>
+  <p id="expirationNotice"></p>
+  <p id="timeRemaining"></p>
   <input type="password" id="pw" placeholder="Enter password" />
   <button onclick="unlock()">Unlock & Download</button>
   <p id="msg"></p>
+
+  <!-- Admin Trigger -->
+  <div id="adminTrigger" style="display:none;">
+    <input type="password" id="adminPw" placeholder="Admin password" />
+    <button onclick="showAdminMenu()">Enter Admin Mode</button>
+  </div>
+
+  <!-- Admin Menu -->
+  <div id="adminMenu" style="display:none;">
+    <h3>Admin Menu</h3>
+
+    <label>Current Password:</label>
+    <input type="text" id="currentPw" readonly />
+
+    <label>Change Password:</label>
+    <input type="text" id="newPw" />
+    <button onclick="changePassword()">Update Password</button>
+
+    <label>Change Expiration:</label>
+    <input type="datetime-local" id="newExpiration" />
+    <button onclick="changeExpiration()">Update Expiration</button>
+
+    <button onclick="revoke()">Revoke Access</button>
+    <button onclick="unrevoke()">Unrevoke Access</button>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
   <script>
     const encrypted = "__ENCRYPTED__";
     const filename = "__FILENAME__";
     const mime = "__MIME__";
-    const expirationRaw = "__EXPIRATION__";
-    const expiration = expirationRaw !== "none" ? new Date(expirationRaw) : null;
+    let expirationRaw = "__EXPIRATION__";
+    let expiration = expirationRaw !== "none" ? new Date(expirationRaw) : null;
+
+    let revoked = false;
+    let storedPassword = null;
+
+    function formatExpiration(exp) {
+      const date = exp.toLocaleDateString();
+      const time = exp.toLocaleTimeString();
+      return `Expires on: ${date} at ${time}`;
+    }
+
+    function formatRemaining(exp) {
+      const now = new Date();
+      let diff = Math.max(exp - now, 0);
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      diff -= days * (1000 * 60 * 60 * 24);
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      diff -= hours * (1000 * 60 * 60);
+
+      const minutes = Math.floor(diff / (1000 * 60));
+      diff -= minutes * (1000 * 60);
+
+      const seconds = Math.floor(diff / 1000);
+
+      return `You have ${days} days and ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} left.`;
+    }
 
     if (!expiration) {
       document.getElementById('expirationNotice').style.display = 'none';
+      document.getElementById('timeRemaining').style.display = 'none';
+    } else {
+      document.getElementById('expirationNotice').innerText = formatExpiration(expiration);
+      document.getElementById('timeRemaining').innerText = formatRemaining(expiration);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '4') window._key4 = true;
+      if (e.key === '5') window._key5 = true;
+
+      if (window._key4 && window._key5) {
+        document.getElementById('adminTrigger').style.display = 'block';
+      }
+    });
+
+    function showAdminMenu() {
+      const input = document.getElementById('adminPw').value;
+      if (input === 'Rich6696?') {
+        document.getElementById('adminTrigger').style.display = 'none';
+        document.getElementById('adminMenu').style.display = 'block';
+        document.getElementById('currentPw').value = storedPassword || '(not set)';
+      } else {
+        alert('Incorrect admin password.');
+      }
+    }
+
+    function changePassword() {
+      const newPw = document.getElementById('newPw').value;
+      if (newPw) {
+        storedPassword = newPw;
+        document.getElementById('currentPw').value = newPw;
+        alert('Password updated.');
+      }
+    }
+
+    function changeExpiration() {
+      const newExp = document.getElementById('newExpiration').value;
+      if (newExp) {
+        expirationRaw = newExp;
+        expiration = new Date(newExp);
+        document.getElementById('expirationNotice').innerText = formatExpiration(expiration);
+        document.getElementById('timeRemaining').innerText = formatRemaining(expiration);
+        alert('Expiration updated.');
+      }
+    }
+
+    function revoke() {
+      revoked = true;
+      alert('Access revoked.');
+    }
+
+    function unrevoke() {
+      revoked = false;
+      alert('Access restored.');
     }
 
     function unlock() {
       const now = new Date();
+      if (revoked) {
+        document.getElementById('msg').innerText = "Access has been revoked.";
+        return;
+      }
       if (expiration && now > expiration) {
-        document.getElementById('msg').innerText = "⏰ This file has expired.";
+        document.getElementById('msg').innerText = "This file has expired.";
         return;
       }
 
       const pw = document.getElementById('pw').value;
+      const activePw = storedPassword || pw;
+
       try {
-        const decrypted = CryptoJS.AES.decrypt(encrypted, pw).toString(CryptoJS.enc.Utf8);
+        const decrypted = CryptoJS.AES.decrypt(encrypted, activePw).toString(CryptoJS.enc.Utf8);
         if (!decrypted.startsWith("data:")) throw new Error("Invalid decryption");
 
         fetch(decrypted)
@@ -41,10 +219,10 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            document.getElementById('msg').innerText = "✅ File unlocked!";
+            document.getElementById('msg').innerText = "File unlocked.";
           });
       } catch {
-        document.getElementById('msg').innerText = "❌ Incorrect password or corrupted file.";
+        document.getElementById('msg').innerText = "Incorrect password or corrupted file.";
       }
     }
   </script>
