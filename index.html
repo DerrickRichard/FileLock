@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Secure File Locker</title>
+</head>
+<body>
+  <h1>🔐 Secure File Locker</h1>
+  <input type="file" id="fileInput" />
+  <input type="text" id="passwordInput" placeholder="Enter password or leave blank for random" />
+  <input type="datetime-local" id="expirationInput" />
+  <button onclick="lockFile()">Lock & Generate Unlocker</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+  <script src="locker.js"></script>
+</body>
+</html>

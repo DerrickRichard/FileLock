@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Unlock File</title></head>
+<body>
+  <h2>🔓 Unlock Protected File</h2>
+  <p>This file expires on: <strong>__EXPIRATION__</strong></p>
+  <input type="password" id="pw" placeholder="Enter password" />
+  <button onclick="unlock()">Unlock & Download</button>
+  <p id="msg"></p>
+  <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+  <script>
+    const encrypted = "__ENCRYPTED__";
+    const filename = "__FILENAME__";
+    const mime = "__MIME__";
+    const expiration = new Date("__EXPIRATION__");
+
+    function unlock() {
+      const now = new Date();
+      if (now > expiration) {
+        document.getElementById('msg').innerText = "⏰ This file has expired.";
+        return;
+      }
+
+      const pw = document.getElementById('pw').value;
+      try {
+        const decrypted = CryptoJS.AES.decrypt(encrypted, pw).toString(CryptoJS.enc.Utf8);
+        if (!decrypted.startsWith("data:")) throw new Error("Invalid decryption");
+
+        fetch(decrypted)
+          .then(res => res.blob())
+          .then(blob => {
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            document.getElementById('msg').innerText = "✅ File unlocked!";
+          });
+      } catch {
+        document.getElementById('msg').innerText = "❌ Incorrect password or corrupted file.";
+      }
+    }
+  </script>
+</body>
+</html>
