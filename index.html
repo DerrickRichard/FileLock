@@ -2,15 +2,55 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Secure File Locker</title>
+  <title>FileLock</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>🔐 Secure File Locker</h1>
-  <input type="file" id="fileInput" />
-  <input type="text" id="passwordInput" placeholder="Enter password or leave blank for random" />
-  <input type="datetime-local" id="expirationInput" />
-  <button onclick="lockFile()">Lock & Generate Unlocker</button>
+  <header>
+    <h1>FileLock</h1>
+    <p class="tagline">Encrypt files into self-unlocking HTML pages</p>
+  </header>
 
+  <section class="tool">
+    <input type="file" id="fileInput" />
+
+    <label for="passwordInput">Password</label>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <input type="text" id="passwordInput" placeholder="Enter password or generate one" />
+      <button type="button" onclick="generatePassword()">Generate Password</button>
+    </div>
+
+    <label for="expirationInput">Expiration (optional)</label>
+    <input type="datetime-local" id="expirationInput" />
+
+    <button onclick="lockFile()">Lock File</button>
+  </section>
+
+  <section class="about">
+  <h2>About Secure File Locker</h2>
+  <p>
+    <strong>Secure File Locker</strong> was created by Derrick Richard to help users encrypt files into self-unlocking HTML pages.
+    Simply upload a file, set a password, and optionally choose an expiration date. The tool generates a standalone HTML file that can decrypt itself in any browser — no software or server required.
+  </p>
+  <p>
+    <a href="https://derrickrichard.github.io/profile" target="_blank" rel="noopener noreferrer">
+      View Derrick Richard's Profile
+    </a>
+  </p>
+</section>
+<br>
+<hr>
+<br>
+<footer>
+  <p>
+    <a href="https://derrickrichard.github.io/FileLock/">FileLock</a> © 2025 by
+    <a href="https://derrickrichard.github.io/profile/">Derrick Richard</a> is licensed under
+    <a href="https://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International</a>
+    <img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="CC" style="max-width: 1em; max-height: 1em; margin-left: .2em;">
+    <img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="BY" style="max-width: 1em; max-height: 1em; margin-left: .2em;">
+    <img src="https://mirrors.creativecommons.org/presskit/icons/nd.svg" alt="ND" style="max-width: 1em; max-height: 1em; margin-left: .2em;">
+  </p>
+</footer>
   <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
   <script src="locker.js"></script>
 </body>
