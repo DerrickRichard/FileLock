@@ -191,65 +191,32 @@
     }
 
     function unlock() {
-      const now = new Date();
-      if (revoked) {
-        document.getElementById('msg').innerText = "Access has been revoked.";
-        return;
-      }
-      if (expiration && now > expiration) {
-        document.getElementById('msg').innerText = "This file has expired.";
-        return;
-      }
+  const now = new Date();
+  if (revoked) {
+    document.getElementById('msg').innerText = "Access has been revoked.";
+    return;
+  }
+  if (expiration && now > expiration) {
+    document.getElementById('msg').innerText = "This file has expired.";
+    return;
+  }
 
-      const pw = document.getElementById('pw').value;
-      const activePw = storedPassword || pw;
+  const pw = document.getElementById('pw').value;
+  const activePw = storedPassword || pw;
 
-      try {
-        const decrypted = CryptoJS.AES.decrypt(encrypted, activePw).toString(CryptoJS.enc.Utf8);
-        if (!decrypted.startsWith("data:")) throw new Error("Invalid decryption");
+  try {
+    const decrypted = CryptoJS.AES.decrypt(encrypted, activePw).toString(CryptoJS.enc.Utf8);
+    if (!decrypted.startsWith("data:")) throw new Error("Invalid decryption");
 
-        fetch(decrypted)
-          .then(res => res.blob())
-          .then(blob => {
-            const extension = filename.split('.').pop().toLowerCase();
-            const textTypes = ["txt", "csv", "html", "css", "js", "c", "java", "py", "json", "xml", "md"];
-            const imageTypes = ["png", "jpg", "jpeg", "webp", "gif", "ico"];
-
-            if (textTypes.includes(extension)) {
-              blob.text().then(text => {
-                const modified = text + "\n\nProtected by FileLock";
-                const newBlob = new Blob([modified], { type: mime });
-                triggerDownload(newBlob);
-              });
-            } else if (imageTypes.includes(extension)) {
-              const img = new Image();
-              img.onload = () => {
-                const canvas = document.createElement("canvas");
-                canvas.width = img.width;
-                canvas.height = img.height;
-                const ctx = canvas.getContext("2d");
-                ctx.drawImage(img, 0, 0);
-                const fontSize = Math.max(16, canvas.width * 0.02);
-                ctx.font = `${fontSize}px Segoe UI`;
-                                ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-                ctx.textAlign = "right";
-                ctx.textBaseline = "bottom";
-                const padding = 20;
-                ctx.fillText("Protected by FileLock", canvas.width - padding, canvas.height - padding);
-                canvas.toBlob(watermarkedBlob => {
-                  triggerDownload(watermarkedBlob);
-                }, mime);
-              };
-              img.src = URL.createObjectURL(blob);
-            } else {
-              // Unsupported for watermarking — download as-is
-              triggerDownload(blob);
-            }
-          });
-      } catch {
-        document.getElementById('msg').innerText = "Incorrect password or corrupted file.";
-      }
-    }
+    fetch(decrypted)
+      .then(res => res.blob())
+      .then(blob => {
+        triggerDownload(blob);
+      });
+  } catch {
+    document.getElementById('msg').innerText = "Incorrect password or corrupted file.";
+  }
+}
   </script>
 </body>
 </html>
