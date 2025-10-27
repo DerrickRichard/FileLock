@@ -64,6 +64,36 @@
       margin-top: 1em;
       display: block;
     }
+
+    /* Base link style */
+a {
+  color: #b30404; /* Maroon */
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+/* Hover and focus states */
+a:hover,
+a:focus {
+  color: #e60303; /* Brighter maroon */
+  text-decoration: underline;
+}
+
+/* Active state */
+a:active {
+  color: #f60202; /* Even brighter on click */
+}
+
+footer a,
+.about a {
+  color: #b30404;
+}
+
+footer a:hover,
+.about a:hover {
+  color: #e60303;
+}
   </style>
 </head>
 <body>
@@ -73,7 +103,22 @@
   <input type="password" id="pw" placeholder="Enter password" />
   <button onclick="unlock()">Unlock & Download</button>
   <p id="msg"></p>
-
+  
+<section class="about">
+  <h2>About Secure File Locker</h2>
+  <p>
+    <strong>Secure File Locker</strong> was created by Derrick Richard to help users encrypt files into self-unlocking HTML pages.
+    Simply upload a file, set a password, and optionally choose an expiration date. The tool generates a standalone HTML file that can decrypt itself in any browser — no software or server required.
+  </p>
+  <p>
+    <a href="https://derrickrichard.github.io/profile" target="_blank" rel="noopener noreferrer">
+      View Derrick Richard's Profile
+    </a>
+  </p>
+</section>
+<br>
+<hr>
+<br>
   <!-- Admin Trigger -->
   <div id="adminTrigger" style="display:none;">
     <input type="password" id="adminPw" placeholder="Admin password" />
@@ -98,7 +143,16 @@
     <button onclick="revoke()">Revoke Access</button>
     <button onclick="unrevoke()">Unrevoke Access</button>
   </div>
-
+<footer>
+  <p>
+    <a href="https://derrickrichard.github.io/FileLock/">FileLock</a> © 2025 by
+    <a href="https://derrickrichard.github.io/profile/">Derrick Richard</a> is licensed under
+    <a href="https://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International</a>
+    <img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="CC" style="max-width: 1em; max-height: 1em; margin-left: .2em;">
+    <img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="BY" style="max-width: 1em; max-height: 1em; margin-left: .2em;">
+    <img src="https://mirrors.creativecommons.org/presskit/icons/nd.svg" alt="ND" style="max-width: 1em; max-height: 1em; margin-left: .2em;">
+  </p>
+</footer>
   <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
   <script>
     const encrypted = "__ENCRYPTED__";
