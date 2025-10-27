@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <title>Unlock File</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -66,35 +66,24 @@
       display: block;
     }
 
-    /* Base link style */
-a {
-  color: #b30404; /* Maroon */
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s ease, text-decoration 0.2s ease;
-}
+    a {
+      color: #b30404;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
 
-/* Hover and focus states */
-a:hover,
-a:focus {
-  color: #e60303; /* Brighter maroon */
-  text-decoration: underline;
-}
+    a:hover {
+      color: #e60303;
+      text-decoration: underline;
+    }
 
-/* Active state */
-a:active {
-  color: #f60202; /* Even brighter on click */
-}
-
-footer a,
-.about a {
-  color: #b30404;
-}
-
-footer a:hover,
-.about a:hover {
-  color: #e60303;
-}
+    footer {
+      margin-top: 40px;
+      font-size: 0.9rem;
+      color: #aaa;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -104,56 +93,45 @@ footer a:hover,
   <input type="password" id="pw" placeholder="Enter password" />
   <button onclick="unlock()">Unlock & Download</button>
   <p id="msg"></p>
-  
-<section class="about">
-  <h2>About FileLock</h2>
-  <p>
-    <strong>FileLock</strong> was created by Derrick Richard to help users encrypt files into self-unlocking HTML pages.
-    Simply upload a file, set a password, and optionally choose an expiration date. The tool generates a standalone HTML file that can decrypt itself in any browser. No software or server required.
-  </p>
-  <p>
-    <a href="https://derrickrichard.github.io/profile" target="_blank" rel="noopener noreferrer">
-      View Derrick Richard's Profile
-    </a>
-  </p>
-</section>
-<br>
-<hr>
-<br>
-  <!-- Admin Trigger -->
+
+  <section class="about">
+    <h2>About Secure File Locker</h2>
+    <p><strong>Secure File Locker</strong> was created by Derrick Richard to help users encrypt files into self-unlocking HTML pages. Simply upload a file, set a password, and optionally choose an expiration date. The tool generates a standalone HTML file that can decrypt itself in any browser — no software or server required.</p>
+    <p><a href="https://derrickrichard.github.io/profile" target="_blank" rel="noopener noreferrer">View Derrick Richard's Profile</a></p>
+  </section>
+
+  <hr />
+
   <div id="adminTrigger" style="display:none;">
     <input type="password" id="adminPw" placeholder="Admin password" />
     <button onclick="showAdminMenu()">Enter Admin Mode</button>
   </div>
 
-  <!-- Admin Menu -->
   <div id="adminMenu" style="display:none;">
     <h3>Admin Menu</h3>
-
     <label>Current Password:</label>
     <input type="text" id="currentPw" readonly />
-
     <label>Change Password:</label>
     <input type="text" id="newPw" />
     <button onclick="changePassword()">Update Password</button>
-
     <label>Change Expiration:</label>
     <input type="datetime-local" id="newExpiration" />
     <button onclick="changeExpiration()">Update Expiration</button>
-
     <button onclick="revoke()">Revoke Access</button>
     <button onclick="unrevoke()">Unrevoke Access</button>
   </div>
-<footer>
-  <p>
-    <a href="https://derrickrichard.github.io/FileLock/">FileLock</a> © 2025 by
-    <a href="https://derrickrichard.github.io/profile/">Derrick Richard</a> is licensed under
-    <a href="https://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International</a>
-    <img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="CC" style="max-width: 1em; max-height: 1em; margin-left: .2em;">
-    <img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="BY" style="max-width: 1em; max-height: 1em; margin-left: .2em;">
-    <img src="https://mirrors.creativecommons.org/presskit/icons/nd.svg" alt="ND" style="max-width: 1em; max-height: 1em; margin-left: .2em;">
-  </p>
-</footer>
+
+  <footer>
+    <p>
+      <a href="https://derrickrichard.github.io/FileLock/">FileLock</a> © 2025 by
+      <a href="https://derrickrichard.github.io/profile/">Derrick Richard</a> is licensed under
+      <a href="https://creativecommons.org/licenses/by-nd/4.0/">CC BY-ND 4.0</a>
+      <img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="CC" style="max-width: 1em; vertical-align: middle;">
+      <img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="BY" style="max-width: 1em; vertical-align: middle;">
+      <img src="https://mirrors.creativecommons.org/presskit/icons/nd.svg" alt="ND" style="max-width: 1em; vertical-align: middle;">
+    </p>
+  </footer>
+
   <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
   <script>
     const encrypted = "__ENCRYPTED__";
@@ -174,18 +152,13 @@ footer a:hover,
     function formatRemaining(exp) {
       const now = new Date();
       let diff = Math.max(exp - now, 0);
-
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       diff -= days * (1000 * 60 * 60 * 24);
-
       const hours = Math.floor(diff / (1000 * 60 * 60));
       diff -= hours * (1000 * 60 * 60);
-
       const minutes = Math.floor(diff / (1000 * 60));
       diff -= minutes * (1000 * 60);
-
       const seconds = Math.floor(diff / 1000);
-
       return `You have ${days} days and ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} left.`;
     }
 
@@ -200,7 +173,6 @@ footer a:hover,
     document.addEventListener('keydown', (e) => {
       if (e.key === '4') window._key4 = true;
       if (e.key === '5') window._key5 = true;
-
       if (window._key4 && window._key5) {
         document.getElementById('adminTrigger').style.display = 'block';
       }
@@ -248,38 +220,77 @@ footer a:hover,
     }
 
     function unlock() {
-      const now = new Date();
-      if (revoked) {
-        document.getElementById('msg').innerText = "Access has been revoked.";
-        return;
-      }
-      if (expiration && now > expiration) {
-        document.getElementById('msg').innerText = "This file has expired.";
-        return;
-      }
+  const now = new Date();
+  if (revoked) {
+    document.getElementById('msg').innerText = "Access has been revoked.";
+    return;
+  }
+  if (expiration && now > expiration) {
+    document.getElementById('msg').innerText = "This file has expired.";
+    return;
+  }
 
-      const pw = document.getElementById('pw').value;
-      const activePw = storedPassword || pw;
+  const pw = document.getElementById('pw').value;
+  const activePw = storedPassword || pw;
 
-      try {
-        const decrypted = CryptoJS.AES.decrypt(encrypted, activePw).toString(CryptoJS.enc.Utf8);
-        if (!decrypted.startsWith("data:")) throw new Error("Invalid decryption");
+  try {
+    const decrypted = CryptoJS.AES.decrypt(encrypted, activePw).toString(CryptoJS.enc.Utf8);
+    if (!decrypted.startsWith("data:")) throw new Error("Invalid decryption");
 
-        fetch(decrypted)
-          .then(res => res.blob())
-          .then(blob => {
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            document.getElementById('msg').innerText = "File unlocked.";
+    fetch(decrypted)
+      .then(res => res.blob())
+      .then(blob => {
+        const extension = filename.split('.').pop().toLowerCase();
+        const textTypes = [
+          "txt", "csv", "html", "css", "js", "c", "java", "py", "json", "xml", "md"
+        ];
+        const imageTypes = [
+          "png", "jpg", "jpeg", "webp", "gif", "ico"
+        ];
+
+        if (textTypes.includes(extension)) {
+          blob.text().then(text => {
+            const modified = text + "\n\nProtected by FileLock";
+            const newBlob = new Blob([modified], { type: mime });
+            triggerDownload(newBlob);
           });
-      } catch {
-        document.getElementById('msg').innerText = "Incorrect password or corrupted file.";
-      }
-    }
+        } else if (imageTypes.includes(extension)) {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            ctx.font = "24px Segoe UI";
+            ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+            ctx.textAlign = "right";
+            ctx.fillText("Protected by FileLock", canvas.width - 20, canvas.height - 20);
+            canvas.toBlob(watermarkedBlob => {
+              triggerDownload(watermarkedBlob);
+            }, mime);
+          };
+          img.src = URL.createObjectURL(blob);
+        } else {
+          // Unsupported for watermarking — download as-is
+          triggerDownload(blob);
+        }
+      });
+  } catch {
+    document.getElementById('msg').innerText = "Incorrect password or corrupted file.";
+  }
+}
+
+function triggerDownload(blob) {
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  document.getElementById('msg').innerText = "File unlocked.";
+}
+
   </script>
 </body>
 </html>
