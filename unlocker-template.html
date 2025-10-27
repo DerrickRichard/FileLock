@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <title>Unlock File</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -65,25 +64,6 @@
       margin-top: 1em;
       display: block;
     }
-
-    a {
-      color: #b30404;
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.2s ease;
-    }
-
-    a:hover {
-      color: #e60303;
-      text-decoration: underline;
-    }
-
-    footer {
-      margin-top: 40px;
-      font-size: 0.9rem;
-      color: #aaa;
-      text-align: center;
-    }
   </style>
 </head>
 <body>
@@ -93,14 +73,6 @@
   <input type="password" id="pw" placeholder="Enter password" />
   <button onclick="unlock()">Unlock & Download</button>
   <p id="msg"></p>
-
-  <section class="about">
-    <h2>About Secure File Locker</h2>
-    <p><strong>Secure File Locker</strong> was created by Derrick Richard to help users encrypt files into self-unlocking HTML pages. Simply upload a file, set a password, and optionally choose an expiration date. The tool generates a standalone HTML file that can decrypt itself in any browser — no software or server required.</p>
-    <p><a href="https://derrickrichard.github.io/profile" target="_blank" rel="noopener noreferrer">View Derrick Richard's Profile</a></p>
-  </section>
-
-  <hr />
 
   <div id="adminTrigger" style="display:none;">
     <input type="password" id="adminPw" placeholder="Admin password" />
@@ -120,17 +92,6 @@
     <button onclick="revoke()">Revoke Access</button>
     <button onclick="unrevoke()">Unrevoke Access</button>
   </div>
-
-  <footer>
-    <p>
-      <a href="https://derrickrichard.github.io/FileLock/">FileLock</a> © 2025 by
-      <a href="https://derrickrichard.github.io/profile/">Derrick Richard</a> is licensed under
-      <a href="https://creativecommons.org/licenses/by-nd/4.0/">CC BY-ND 4.0</a>
-      <img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="CC" style="max-width: 1em; vertical-align: middle;">
-      <img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="BY" style="max-width: 1em; vertical-align: middle;">
-      <img src="https://mirrors.creativecommons.org/presskit/icons/nd.svg" alt="ND" style="max-width: 1em; vertical-align: middle;">
-    </p>
-  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
   <script>
@@ -219,78 +180,76 @@
       alert('Access restored.');
     }
 
+    function triggerDownload(blob) {
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      document.getElementById('msg').innerText = "File unlocked.";
+    }
+
     function unlock() {
-  const now = new Date();
-  if (revoked) {
-    document.getElementById('msg').innerText = "Access has been revoked.";
-    return;
-  }
-  if (expiration && now > expiration) {
-    document.getElementById('msg').innerText = "This file has expired.";
-    return;
-  }
+      const now = new Date();
+      if (revoked) {
+        document.getElementById('msg').innerText = "Access has been revoked.";
+        return;
+      }
+      if (expiration && now > expiration) {
+        document.getElementById('msg').innerText = "This file has expired.";
+        return;
+      }
 
-  const pw = document.getElementById('pw').value;
-  const activePw = storedPassword || pw;
+      const pw = document.getElementById('pw').value;
+      const activePw = storedPassword || pw;
 
-  try {
-    const decrypted = CryptoJS.AES.decrypt(encrypted, activePw).toString(CryptoJS.enc.Utf8);
-    if (!decrypted.startsWith("data:")) throw new Error("Invalid decryption");
+      try {
+        const decrypted = CryptoJS.AES.decrypt(encrypted, activePw).toString(CryptoJS.enc.Utf8);
+        if (!decrypted.startsWith("data:")) throw new Error("Invalid decryption");
 
-    fetch(decrypted)
-      .then(res => res.blob())
-      .then(blob => {
-        const extension = filename.split('.').pop().toLowerCase();
-        const textTypes = [
-          "txt", "csv", "html", "css", "js", "c", "java", "py", "json", "xml", "md"
-        ];
-        const imageTypes = [
-          "png", "jpg", "jpeg", "webp", "gif", "ico"
-        ];
+        fetch(decrypted)
+          .then(res => res.blob())
+          .then(blob => {
+            const extension = filename.split('.').pop().toLowerCase();
+            const textTypes = ["txt", "csv", "html", "css", "js", "c", "java", "py", "json", "xml", "md"];
+            const imageTypes = ["png", "jpg", "jpeg", "webp", "gif", "ico"];
 
-        if (textTypes.includes(extension)) {
-          blob.text().then(text => {
-            const modified = text + "\n\nProtected by FileLock";
-            const newBlob = new Blob([modified], { type: mime });
-            triggerDownload(newBlob);
+            if (textTypes.includes(extension)) {
+              blob.text().then(text => {
+                const modified = text + "\n\nProtected by FileLock";
+                const newBlob = new Blob([modified], { type: mime });
+                triggerDownload(newBlob);
+              });
+            } else if (imageTypes.includes(extension)) {
+              const img = new Image();
+              img.onload = () => {
+                const canvas = document.createElement("canvas");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+                const fontSize = Math.max(16, canvas.width * 0.02);
+                ctx.font = `${fontSize}px Segoe UI`;
+                                ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+                ctx.textAlign = "right";
+                ctx.textBaseline = "bottom";
+                const padding = 20;
+                ctx.fillText("Protected by FileLock", canvas.width - padding, canvas.height - padding);
+                canvas.toBlob(watermarkedBlob => {
+                  triggerDownload(watermarkedBlob);
+                }, mime);
+              };
+              img.src = URL.createObjectURL(blob);
+            } else {
+              // Unsupported for watermarking — download as-is
+              triggerDownload(blob);
+            }
           });
-        } else if (imageTypes.includes(extension)) {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement("canvas");
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0);
-            ctx.font = "24px Segoe UI";
-            ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-            ctx.textAlign = "right";
-            ctx.fillText("Protected by FileLock", canvas.width - 20, canvas.height - 20);
-            canvas.toBlob(watermarkedBlob => {
-              triggerDownload(watermarkedBlob);
-            }, mime);
-          };
-          img.src = URL.createObjectURL(blob);
-        } else {
-          // Unsupported for watermarking — download as-is
-          triggerDownload(blob);
-        }
-      });
-  } catch {
-    document.getElementById('msg').innerText = "Incorrect password or corrupted file.";
-  }
-}
-
-function triggerDownload(blob) {
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  document.getElementById('msg').innerText = "File unlocked.";
-}
-
+      } catch {
+        document.getElementById('msg').innerText = "Incorrect password or corrupted file.";
+      }
+    }
   </script>
 </body>
 </html>
