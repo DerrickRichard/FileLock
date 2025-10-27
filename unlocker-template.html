@@ -129,20 +129,20 @@ a:hover {
 </footer>
   <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
   <script>
-    const encrypted = "__ENCRYPTED__";
+   const encrypted = "__ENCRYPTED__";
+    const encryptedAdmin = "__ADMIN_ENCRYPTED__";
     const filename = "__FILENAME__";
     const mime = "__MIME__";
+    const author = "__AUTHOR__";
     let expirationRaw = "__EXPIRATION__";
     let expiration = expirationRaw !== "none" ? new Date(expirationRaw) : null;
-
     let revoked = false;
-    let storedPassword = null;
     let adminModeActive = false;
 
+    document.getElementById('authorName').innerText = author;
+
     function formatExpiration(exp) {
-      const date = exp.toLocaleDateString();
-      const time = exp.toLocaleTimeString();
-      return `Expires on: ${date} at ${time}`;
+      return `Expires on: ${exp.toLocaleDateString()} at ${exp.toLocaleTimeString()}`;
     }
 
     function formatRemaining(exp) {
@@ -158,10 +158,7 @@ a:hover {
       return `You have ${days} days and ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} left.`;
     }
 
-    if (!expiration) {
-      document.getElementById('expirationNotice').style.display = 'none';
-      document.getElementById('timeRemaining').style.display = 'none';
-    } else {
+    if (expiration) {
       document.getElementById('expirationNotice').innerText = formatExpiration(expiration);
       document.getElementById('timeRemaining').innerText = formatRemaining(expiration);
       setInterval(() => {
@@ -170,18 +167,15 @@ a:hover {
     }
 
     let holdTimer = null;
-
     document.addEventListener('keydown', (e) => {
       if (e.key === '4') window._key4 = true;
       if (e.key === '5') window._key5 = true;
-
       if (window._key4 && window._key5 && !holdTimer) {
         holdTimer = setTimeout(() => {
           document.getElementById('adminTrigger').style.display = 'block';
         }, 3000);
       }
     });
-
     document.addEventListener('keyup', (e) => {
       if (e.key === '4') window._key4 = false;
       if (e.key === '5') window._key5 = false;
@@ -192,11 +186,11 @@ a:hover {
     function showAdminMenu() {
       const input = document.getElementById('adminPw').value;
       if (input === 'Rich6696?') {
-        document.getElementById('adminTrigger').style.display = 'none';
+                document.getElementById('adminTrigger').style.display = 'none';
         document.getElementById('adminMenu').style.display = 'block';
         adminModeActive = true;
       } else {
-        alert('Incorrect admin password.');
+        document.getElementById('msg').innerText = "Incorrect admin password.";
       }
     }
 
@@ -236,7 +230,7 @@ a:hover {
 
       let decrypted;
       if (useAdmin && adminModeActive) {
-        decrypted = CryptoJS.AES.decrypt(encrypted, "Rich6696?").toString(CryptoJS.enc.Utf8);
+        decrypted = CryptoJS.AES.decrypt(encryptedAdmin, "Rich6696?").toString(CryptoJS.enc.Utf8);
       } else {
         const pw = document.getElementById('pw').value;
         decrypted = CryptoJS.AES.decrypt(encrypted, pw).toString(CryptoJS.enc.Utf8);
