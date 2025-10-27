@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <title>FileLock</title>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -13,25 +12,29 @@
   </header>
 
   <section class="tool">
-    <input type="file" id="fileInput" />
+  <input type="file" id="fileInput" />
 
-    <label for="passwordInput">Password</label>
-    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-      <input type="text" id="passwordInput" placeholder="Enter password or generate one" />
-      <button type="button" onclick="generatePassword()">Generate Password</button>
-    </div>
+  <label for="passwordInput">Password</label>
+  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+    <input type="text" id="passwordInput" placeholder="Enter password or generate one" />
+    <button type="button" onclick="generatePassword()">Generate Password</button>
+  </div>
 
-    <label for="expirationInput">Expiration (optional)</label>
-    <input type="datetime-local" id="expirationInput" />
+  <label for="expirationInput">Expiration (optional)</label>
+  <input type="datetime-local" id="expirationInput" />
 
-    <button onclick="lockFile()">Lock File</button>
-  </section>
+  <label for="authorInput">Authored by</label>
+  <input type="text" id="authorInput" placeholder="Your name or organization" />
+
+  <button onclick="lockFile()">Lock File</button>
+</section>
+
 
   <section class="about">
-  <h2>About FileLock</h2>
+  <h2>About Secure File Locker</h2>
   <p>
-    <strong>FileLock</strong> was created by Derrick Richard to help users encrypt files into self-unlocking HTML pages.
-    Simply upload a file, set a password, and optionally choose an expiration date. The tool generates a standalone HTML file that can decrypt itself in any browser. No software or server required.
+    <strong>Secure File Locker</strong> was created by Derrick Richard to help users encrypt files into self-unlocking HTML pages.
+    Simply upload a file, set a password, and optionally choose an expiration date. The tool generates a standalone HTML file that can decrypt itself in any browser — no software or server required.
   </p>
   <p>
     <a href="https://derrickrichard.github.io/profile" target="_blank" rel="noopener noreferrer">
