@@ -59,17 +59,46 @@
       margin-top: 2em;
     }
 
+    #adminUnlockSection {
+      margin-top: 1em;
+      padding: 1em;
+      background-color: #1a1a1a;
+      border: 1px solid #800000;
+      border-radius: 6px;
+    }
+
     label {
       font-weight: bold;
       margin-top: 1em;
       display: block;
     }
+
+    a {
+  color: #ff6666;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+a:hover {
+  color: #ff9999;
+  text-decoration: underline;
+}
   </style>
 </head>
 <body>
   <h2>Unlock Protected File</h2>
+  <p>File Protected with <a href="https://derrickrichard.github.io/FileLock/">FileLock</a></p>
+  <hr>
+  <p>Having trouble? Click <a href="mailto:derrick.richard@pothisd.us" target="_blank">Here</a> to email Derrick Richard for support.</p>
+  <hr>
+  <br>
+  <p><strong>Authored by:</strong> <span id="authorName">__AUTHOR__</span></p>
+<hr>
   <p id="expirationNotice"></p>
+  <hr>
   <p id="timeRemaining"></p>
+  <hr>
+  <br>
   <input type="password" id="pw" placeholder="Enter password" />
   <button onclick="unlock()">Unlock & Download</button>
   <p id="msg"></p>
@@ -81,18 +110,23 @@
 
   <div id="adminMenu" style="display:none;">
     <h3>Admin Menu</h3>
-    <label>Current Password:</label>
-    <input type="text" id="currentPw" readonly />
-    <label>Change Password:</label>
-    <input type="text" id="newPw" />
-    <button onclick="changePassword()">Update Password</button>
-    <label>Change Expiration:</label>
-    <input type="datetime-local" id="newExpiration" />
-    <button onclick="changeExpiration()">Update Expiration</button>
-    <button onclick="revoke()">Revoke Access</button>
-    <button onclick="unrevoke()">Unrevoke Access</button>
+    <button onclick="showAdminUnlock()">Unlock with Admin Password</button>
+    <div id="adminUnlockSection" style="display:none;">
+      <p>Confirm unlock with admin password:</p>
+      <input type="password" id="adminUnlockPw" placeholder="Enter admin password" />
+      <button onclick="unlockWithAdmin()">Confirm & Unlock</button>
+    </div>
   </div>
-
+<footer>
+  <p>
+    <a href="https://derrickrichard.github.io/FileLock/">FileLock</a> © 2025 by
+    <a href="https://derrickrichard.github.io/profile/">Derrick Richard</a> is licensed under
+    <a href="https://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International</a>
+    <img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="CC" style="max-width: 1em; max-height: 1em; margin-left: .2em;">
+    <img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="BY" style="max-width: 1em; max-height: 1em; margin-left: .2em;">
+    <img src="https://mirrors.creativecommons.org/presskit/icons/nd.svg" alt="ND" style="max-width: 1em; max-height: 1em; margin-left: .2em;">
+  </p>
+</footer>
   <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
   <script>
     const encrypted = "__ENCRYPTED__";
@@ -103,6 +137,7 @@
 
     let revoked = false;
     let storedPassword = null;
+    let adminModeActive = false;
 
     function formatExpiration(exp) {
       const date = exp.toLocaleDateString();
@@ -129,14 +164,29 @@
     } else {
       document.getElementById('expirationNotice').innerText = formatExpiration(expiration);
       document.getElementById('timeRemaining').innerText = formatRemaining(expiration);
+      setInterval(() => {
+        document.getElementById('timeRemaining').innerText = formatRemaining(expiration);
+      }, 1000);
     }
+
+    let holdTimer = null;
 
     document.addEventListener('keydown', (e) => {
       if (e.key === '4') window._key4 = true;
       if (e.key === '5') window._key5 = true;
-      if (window._key4 && window._key5) {
-        document.getElementById('adminTrigger').style.display = 'block';
+
+      if (window._key4 && window._key5 && !holdTimer) {
+        holdTimer = setTimeout(() => {
+          document.getElementById('adminTrigger').style.display = 'block';
+        }, 3000);
       }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      if (e.key === '4') window._key4 = false;
+      if (e.key === '5') window._key5 = false;
+      clearTimeout(holdTimer);
+      holdTimer = null;
     });
 
     function showAdminMenu() {
@@ -144,40 +194,23 @@
       if (input === 'Rich6696?') {
         document.getElementById('adminTrigger').style.display = 'none';
         document.getElementById('adminMenu').style.display = 'block';
-        document.getElementById('currentPw').value = storedPassword || '(not set)';
+        adminModeActive = true;
       } else {
         alert('Incorrect admin password.');
       }
     }
 
-    function changePassword() {
-      const newPw = document.getElementById('newPw').value;
-      if (newPw) {
-        storedPassword = newPw;
-        document.getElementById('currentPw').value = newPw;
-        alert('Password updated.');
+    function showAdminUnlock() {
+      document.getElementById('adminUnlockSection').style.display = 'block';
+    }
+
+    function unlockWithAdmin() {
+      const input = document.getElementById('adminUnlockPw').value;
+      if (input === 'Rich6696?' && adminModeActive) {
+        unlock(true);
+      } else {
+        document.getElementById('msg').innerText = "Incorrect admin password.";
       }
-    }
-
-    function changeExpiration() {
-      const newExp = document.getElementById('newExpiration').value;
-      if (newExp) {
-        expirationRaw = newExp;
-        expiration = new Date(newExp);
-        document.getElementById('expirationNotice').innerText = formatExpiration(expiration);
-        document.getElementById('timeRemaining').innerText = formatRemaining(expiration);
-        alert('Expiration updated.');
-      }
-    }
-
-    function revoke() {
-      revoked = true;
-      alert('Access revoked.');
-    }
-
-    function unrevoke() {
-      revoked = false;
-      alert('Access restored.');
     }
 
     function triggerDownload(blob) {
@@ -190,33 +223,36 @@
       document.getElementById('msg').innerText = "File unlocked.";
     }
 
-    function unlock() {
-  const now = new Date();
-  if (revoked) {
-    document.getElementById('msg').innerText = "Access has been revoked.";
-    return;
-  }
-  if (expiration && now > expiration) {
-    document.getElementById('msg').innerText = "This file has expired.";
-    return;
-  }
+    function unlock(useAdmin = false) {
+      const now = new Date();
+      if (revoked) {
+        document.getElementById('msg').innerText = "Access has been revoked.";
+        return;
+      }
+      if (expiration && now > expiration) {
+        document.getElementById('msg').innerText = "This file has expired.";
+        return;
+      }
 
-  const pw = document.getElementById('pw').value;
-  const activePw = storedPassword || pw;
+      let decrypted;
+      if (useAdmin && adminModeActive) {
+        decrypted = CryptoJS.AES.decrypt(encrypted, "Rich6696?").toString(CryptoJS.enc.Utf8);
+      } else {
+        const pw = document.getElementById('pw').value;
+        decrypted = CryptoJS.AES.decrypt(encrypted, pw).toString(CryptoJS.enc.Utf8);
+      }
 
-  try {
-    const decrypted = CryptoJS.AES.decrypt(encrypted, activePw).toString(CryptoJS.enc.Utf8);
-    if (!decrypted.startsWith("data:")) throw new Error("Invalid decryption");
+      if (!decrypted.startsWith("data:")) {
+        document.getElementById('msg').innerText = "Incorrect password or corrupted file.";
+        return;
+      }
 
-    fetch(decrypted)
-      .then(res => res.blob())
-      .then(blob => {
-        triggerDownload(blob);
-      });
-  } catch {
-    document.getElementById('msg').innerText = "Incorrect password or corrupted file.";
-  }
-}
+      fetch(decrypted)
+        .then(res => res.blob())
+        .then(blob => {
+          triggerDownload(blob);
+        });
+    }
   </script>
 </body>
 </html>
